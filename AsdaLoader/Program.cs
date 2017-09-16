@@ -23,11 +23,16 @@ namespace AsdaLoader
 
         private static void Login(FtdnaConnector conn, string kitNumber, string password)
         {
-        	string token = conn.GetVerificationTokenAsync().Result;
-			Console.WriteLine(token);
-			var result = conn.LoginAsync(token, kitNumber, password).Result;
-			Console.WriteLine(result);
+            string token = conn.GetVerificationTokenAsync().Result;
+            Console.WriteLine(token);
+            var result = conn.LoginAsync(token, kitNumber, password).Result;
+            Console.WriteLine(result);
             Console.Write(conn.VerifyLoginAsync().Result);
+            var matchData = conn.ListMatches(1500, 1).Result;
+            foreach(var match in matchData.Data)
+            {
+                Console.WriteLine($"{match.MatchPersonName} - Tot {match.TotalCM} cM - LB {match.LongestCentimorgans} cM");
+            }
         }
     }
 }
