@@ -37,7 +37,6 @@ namespace AsdaLoader.Ftdna
 			using (var client = CreateClient())
 			{
 				var request = new HttpRequestMessage(HttpMethod.Post, "sign-in");
-				request.Headers.Add("__RequestVerificationToken", verificationToken);
 				request.Headers.Referrer = new Uri(BaseUri + "sign-in");
 				request.Headers.Add("X-Requested-With", "XMLHttpRequest");
 				request.Content = new StringContent(body, Encoding.UTF8, "application/json");
