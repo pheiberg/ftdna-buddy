@@ -102,7 +102,7 @@ namespace AsdaLoader.Ftdna
             }
         }
 
-        public async Task<IEnumerable<ChromosomeSegment>> ListChromosomeSegments(string ekitId)
+        public async Task<IEnumerable<ChromosomeSegment>> ListChromosomeSegmentsAsync(string ekitId)
         {
             using (var client = CreateClient())
             {
