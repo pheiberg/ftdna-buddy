@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -36,7 +38,7 @@ namespace AsdaLoader.Ftdna
             }
         }
 
-        public async Task<string> LoginAsync(string verificationToken, string kitNumber, string password)
+        public async Task<string> LoginAsync(string kitNumber, string password)
         {
             var body = $"{{\"model\": {{\"password\": \"{password}\", \"kitNum\": \"{kitNumber}\", \"rememberMe\": false}}, \"returnUrl\": null}}";
 
@@ -142,6 +144,36 @@ namespace AsdaLoader.Ftdna
 					return serializer.Deserialize<MatchResults>(jsonReader);
 				}
 			}  
+        }
+
+        public async Task<MatchDetailsResult> GetMatchDetailsAsync(string resultId1, string resultId2)
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            using (var client = CreateClient())
+			{
+				var content = new FormUrlEncodedContent(new[] { 
+                    new KeyValuePair<string, string>("resultId1", resultId1), 
+                    new KeyValuePair<string, string>("resultId2", resultId2),
+                    new KeyValuePair<string, string>("trial", "false") 
+                });
+				
+                var request = new HttpRequestMessage(HttpMethod.Post, "my/family-finder/get-user-match-data")
+                {
+                    Content = content
+                };
+                request.Headers.Add("Accept", "application/json, text/javascript, */*; q=0.01");
+                request.Headers.Referrer = new Uri(BaseUri + "my/familyfinder");
+                request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+
+                var result = await client.SendAsync(request);
+
+                using (var resultStream = await result.Content.ReadAsStreamAsync())
+                using (var streamReader = new StreamReader(resultStream))
+                using (var jsonReader = new JsonTextReader(streamReader))
+				{
+                    return serializer.Deserialize<MatchDetailsResult>(jsonReader);
+				}
+			}
         }
 
         private HttpClient CreateClient(string baseUri = BaseUri)
