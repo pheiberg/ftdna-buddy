@@ -27,7 +27,8 @@ namespace AsdaLoader
             Console.WriteLine(token);
             var result = conn.LoginAsync(token, kitNumber, password).Result;
             Console.WriteLine(result);
-            Console.Write(conn.VerifyLoginAsync().Result);
+            var ekitId = conn.GetEkitIdAsync().Result;
+            Console.Write(ekitId);
             var matchData = conn.ListMatches(1500, 1).Result;
             foreach(var match in matchData.Data)
             {

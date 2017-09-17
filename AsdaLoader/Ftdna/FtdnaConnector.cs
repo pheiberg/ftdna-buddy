@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -55,7 +56,7 @@ namespace AsdaLoader.Ftdna
             }
         }
 
-        public async Task<bool> VerifyLoginAsync()
+        public async Task<string> GetEkitIdAsync()
         {
             using (var client = CreateClient())
             {
@@ -69,9 +70,13 @@ namespace AsdaLoader.Ftdna
                 {
                     var reader = new StreamReader(resultStream);
                     var body = await reader.ReadToEndAsync();
-                    return body.IndexOf("Invalid credentials", StringComparison.OrdinalIgnoreCase) == -1 && 
-                               body.IndexOf("FTDNA signin", StringComparison.OrdinalIgnoreCase) == -1;
-                };
+
+                    var match = Regex.Match(body, "<notification\\sekit=\\\"(?<ekit>.*?)\\\"");
+                    if (!match.Success)
+                        return null;
+                    
+                    return match.Groups["ekit"]?.Captures.FirstOrDefault()?.Value; ;
+                }
             }
         }
 
