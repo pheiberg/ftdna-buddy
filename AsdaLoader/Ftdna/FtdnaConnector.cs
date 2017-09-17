@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CsvHelper;
 using Newtonsoft.Json;
 
 namespace AsdaLoader.Ftdna
@@ -97,6 +98,27 @@ namespace AsdaLoader.Ftdna
                 using (var jsonReader = new JsonTextReader(streamReader))
                 {   
                     return serializer.Deserialize<MatchResults>(jsonReader);
+                }
+            }
+        }
+
+        public async Task<IEnumerable<ChromosomeSegment>> ListChromosomeSegments(string ekitId)
+        {
+            using (var client = CreateClient())
+            {
+                var uri = $"my/family-finder/chromosome-browser-download?ekit={ekitId}";
+                var request = new HttpRequestMessage(HttpMethod.Get, uri);
+                request.Headers.Add("Accept", PageAcceptHeader);
+                request.Headers.Referrer = new Uri(BaseUri + "my/family-finder/chromosome-browser?c=True");
+
+                var result = await client.SendAsync(request);
+
+                using (var resultStream = await result.Content.ReadAsStreamAsync())
+                using (var streamReader = new StreamReader(resultStream))
+                {
+                    var csvReader = new CsvReader(streamReader);
+                    csvReader.Configuration.RegisterClassMap<ChromosomeSegmentMap>();
+					return csvReader.GetRecords<ChromosomeSegment>().ToArray();
                 }
             }
         }
