@@ -123,6 +123,27 @@ namespace AsdaLoader.Ftdna
             }
         }
 
+        public async Task<MatchResults> ListInCommonWithAsync(string resultId2, int page = 1, int pageSize = 1500)
+        {
+			JsonSerializer serializer = new JsonSerializer();
+			using (var client = CreateClient())
+			{
+                var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=5&filterResultId={resultId2}&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=relationshipPercentage()&trial=0";
+				var request = new HttpRequestMessage(HttpMethod.Get, uri);
+				request.Headers.Add("Accept", PageAcceptHeader);
+				request.Headers.Referrer = new Uri(BaseUri + "my/familyfinder/");
+
+				var result = await client.SendAsync(request);
+
+				using (var resultStream = await result.Content.ReadAsStreamAsync())
+				using (var streamReader = new StreamReader(resultStream))
+				using (var jsonReader = new JsonTextReader(streamReader))
+				{
+					return serializer.Deserialize<MatchResults>(jsonReader);
+				}
+			}  
+        }
+
         private HttpClient CreateClient(string baseUri = BaseUri)
         {
             var handler = new HttpClientHandler

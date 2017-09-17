@@ -19,7 +19,7 @@ namespace AsdaLoader.Ftdna
 
         public int FF_XSharedSegments { get; set; }
 
-        public int FFDataTypeId { get; set; }
+        public int? FFDataTypeId { get; set; }
 
         public int? FFRelationshipGroupId { get; set; }
 

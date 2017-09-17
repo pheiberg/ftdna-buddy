@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AsdaLoader.Ftdna;
 
 namespace AsdaLoader
@@ -29,15 +30,21 @@ namespace AsdaLoader
             Console.WriteLine(result);
             var ekitId = conn.GetEkitIdAsync().Result;
             Console.Write(ekitId);
-            /*var matchData = conn.ListMatches(1500, 1).Result;
+            var matchData = conn.ListMatches(1500, 1).Result;
             foreach(var match in matchData.Data)
             {
                 Console.WriteLine($"{match.MatchPersonName} - Tot {match.TotalCM} cM - LB {match.LongestCentimorgans} cM");
-            }*/
+            }
             var segments = conn.ListChromosomeSegments(ekitId).Result;
             foreach(var segment in segments)
             {
                 Console.WriteLine($"{segment.MatchName} - Chr {segment.Chromosome} - {segment.Centimorgans} cM");
+            }
+            var aMatch = matchData.Data.First();
+            var inCommonWith = conn.ListInCommonWithAsync(aMatch.ResultId2).Result;
+            foreach(var icw in inCommonWith.Data)
+            {
+                Console.WriteLine($"ICW {aMatch.Name} - {icw.Name}");
             }
         }
     }
