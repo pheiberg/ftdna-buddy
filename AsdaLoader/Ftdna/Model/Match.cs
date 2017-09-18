@@ -1,5 +1,5 @@
 ﻿using System;
-namespace AsdaLoader.Ftdna
+namespace AsdaLoader.Ftdna.Model
 {
     public class Match
     {

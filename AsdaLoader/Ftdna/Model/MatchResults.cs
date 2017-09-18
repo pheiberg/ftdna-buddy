@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AsdaLoader.Ftdna
+namespace AsdaLoader.Ftdna.Model
 {
     public class MatchResults
     {
