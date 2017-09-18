@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsdaLoader", "AsdaLoader\AsdaLoader.csproj", "{2C8C799F-609F-43AF-85CF-084C0F13AE73}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = “FtdnaBuddy”, "FtdnaBuddy\FtdnaBuddy.csproj", "{2C8C799F-609F-43AF-85CF-084C0F13AE73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
