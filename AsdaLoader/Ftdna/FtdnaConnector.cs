@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -94,13 +92,7 @@ namespace AsdaLoader.Ftdna
                 request.Headers.Referrer = new Uri(BaseUri + "my/default.aspx");
                 
                 var result = await client.SendAsync(request);
-
-                using (var resultStream = await result.Content.ReadAsStreamAsync())
-                using (var streamReader = new StreamReader(resultStream))
-                using (var jsonReader = new JsonTextReader(streamReader))
-                {   
-                    return serializer.Deserialize<MatchResults>(jsonReader);
-                }
+                return await GetJsonResponse<MatchResults>(result);
             }
         }
 
@@ -136,13 +128,7 @@ namespace AsdaLoader.Ftdna
 				request.Headers.Referrer = new Uri(BaseUri + "my/familyfinder/");
 
 				var result = await client.SendAsync(request);
-
-				using (var resultStream = await result.Content.ReadAsStreamAsync())
-				using (var streamReader = new StreamReader(resultStream))
-				using (var jsonReader = new JsonTextReader(streamReader))
-				{
-					return serializer.Deserialize<MatchResults>(jsonReader);
-				}
+                return await GetJsonResponse<MatchResults>(result);
 			}  
         }
 
@@ -166,13 +152,18 @@ namespace AsdaLoader.Ftdna
                 request.Headers.Add("X-Requested-With", "XMLHttpRequest");
 
                 var result = await client.SendAsync(request);
+                return await GetJsonResponse<MatchDetailsResult>(result);
+			}
+        }
 
-                using (var resultStream = await result.Content.ReadAsStreamAsync())
-                using (var streamReader = new StreamReader(resultStream))
-                using (var jsonReader = new JsonTextReader(streamReader))
-				{
-                    return serializer.Deserialize<MatchDetailsResult>(jsonReader);
-				}
+        private async Task<T> GetJsonResponse<T>(HttpResponseMessage response)
+        {
+            JsonSerializer serializer = new JsonSerializer();
+			using (var resultStream = await response.Content.ReadAsStreamAsync())
+			using (var streamReader = new StreamReader(resultStream))
+			using (var jsonReader = new JsonTextReader(streamReader))
+			{
+				return serializer.Deserialize<T>(jsonReader);
 			}
         }
 
