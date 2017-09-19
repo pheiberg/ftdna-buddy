@@ -2,9 +2,6 @@
 using System.Linq;
 using FtdnaBuddy.Ftdna;
 using FtdnaBuddy.Ftdna.Model;
-using FtdnaBuddy.Ftdna.QueryModel;
-using FtdnaBuddy.Ftdna.Serialization;
-using Newtonsoft.Json;
 
 namespace FtdnaBuddy
 {
@@ -24,8 +21,8 @@ namespace FtdnaBuddy
 
             try
             {
-                var user = service.Login(args[0], args[1]).Result;
-                TestFunctions(conn, user);
+                var user = service.Login(args[0], args[1]);
+                TestFunctions(conn, service, user);
             }
             catch (Exception ex)
             {
@@ -39,10 +36,10 @@ namespace FtdnaBuddy
             return 0;
         }
 
-        static void TestFunctions(FtdnaConnector conn, FtdnaUser user)
+        static void TestFunctions(FtdnaConnector conn, FtdnaService service, FtdnaUser user)
         {
-            var matchData = conn.ListMatches(1500, 1).Result;
-            foreach (var match in matchData.Data)
+            var matchData = service.ListMatches();
+            foreach (var match in matchData)
             {
                 Console.WriteLine($"{match.MatchPersonName} - Tot {match.TotalCM} cM - LB {match.LongestCentimorgans} cM");
             }
