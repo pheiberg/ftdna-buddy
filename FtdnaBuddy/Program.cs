@@ -2,6 +2,9 @@
 using System.Linq;
 using FtdnaBuddy.Ftdna;
 using FtdnaBuddy.Ftdna.Model;
+using FtdnaBuddy.Ftdna.QueryModel;
+using FtdnaBuddy.Ftdna.Serialization;
+using Newtonsoft.Json;
 
 namespace FtdnaBuddy
 {

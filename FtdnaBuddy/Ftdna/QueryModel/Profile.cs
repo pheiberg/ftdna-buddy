@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace FtdnaBuddy.Ftdna.QueryModel
 {
@@ -63,6 +64,11 @@ namespace FtdnaBuddy.Ftdna.QueryModel
             
             _icw.Add(match);
             match._icw.Add(this);
+        }
+
+        internal void AddSegmentMatch(SegmentMatch segment)
+        {
+            AddSegmentMatch(segment.Chromosome, segment.Start, segment.End, segment.Snps);
         }
 
         internal void AddSegmentMatch(string chromosome, long start, long end, 

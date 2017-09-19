@@ -10,6 +10,7 @@
     <Folder Include="Ftdna\Model\" />
     <Folder Include="Ftdna\CsvParsing\" />
     <Folder Include="Ftdna\QueryModel\" />
+    <Folder Include="Ftdna\Serialization\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.2" />
