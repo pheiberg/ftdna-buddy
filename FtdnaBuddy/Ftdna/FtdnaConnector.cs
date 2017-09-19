@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -39,18 +40,17 @@ namespace FtdnaBuddy.Ftdna
             {
                 BaseAddress = new Uri(baseUri)
             };
-            client.DefaultRequestHeaders.Add("Host", new Uri(BaseUri).Host);
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
-            client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.8");
-            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate");
+            client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US"));
+            client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en", .8));
             client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
-            return client;
+			client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
+			return client;
         }
 
         public async Task<string> GetVerificationTokenAsync()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, SignInPath);
-            request.Headers.Add("Accept", PageAcceptHeader);
+            request.Headers.Accept.ParseAdd(PageAcceptHeader);
 
             var result = await _client.SendAsync(request);
 
@@ -82,7 +82,7 @@ namespace FtdnaBuddy.Ftdna
         public async Task<string> GetEkitIdAsync()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, "my/default.aspx");
-            request.Headers.Add("Accept", PageAcceptHeader);
+            request.Headers.Accept.ParseAdd(PageAcceptHeader);
             request.Headers.Referrer = new Uri(BaseUri + SignInPath);
 
             var result = await _client.SendAsync(request);
@@ -106,7 +106,7 @@ namespace FtdnaBuddy.Ftdna
 
             var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=0&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=relationshipPercentage()&trial=0";
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Add("Accept", PageAcceptHeader);
+            request.Headers.Accept.ParseAdd(PageAcceptHeader);
             request.Headers.Referrer = new Uri(BaseUri + "my/default.aspx");
 
             var result = await _client.SendAsync(request);
@@ -117,7 +117,7 @@ namespace FtdnaBuddy.Ftdna
         {
             var uri = $"my/family-finder/chromosome-browser-download?ekit={ekitId}";
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Add("Accept", PageAcceptHeader);
+            request.Headers.Accept.ParseAdd(PageAcceptHeader);
             request.Headers.Referrer = new Uri(BaseUri + "my/family-finder/chromosome-browser?c=True");
 
             var result = await _client.SendAsync(request);
@@ -135,7 +135,7 @@ namespace FtdnaBuddy.Ftdna
         {
             var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=5&filterResultId={resultId2}&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=relationshipPercentage()&trial=0";
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Add("Accept", PageAcceptHeader);
+            request.Headers.Accept.ParseAdd(PageAcceptHeader);
             request.Headers.Referrer = new Uri(BaseUri + "my/familyfinder/");
 
             var result = await _client.SendAsync(request);
@@ -154,7 +154,9 @@ namespace FtdnaBuddy.Ftdna
             {
                 Content = content
             };
-            request.Headers.Add("Accept", "application/json, text/javascript, */*; q=0.01");
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/javascript"));
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*", .01));
             request.Headers.Referrer = new Uri(BaseUri + "my/familyfinder");
             request.Headers.Add("X-Requested-With", "XMLHttpRequest");
 
