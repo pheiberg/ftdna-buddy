@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace AsdaLoader.Ftdna.Model
+namespace FtdnaBuddy.Ftdna.Model
 {
     public class MatchDetailsResult
     {

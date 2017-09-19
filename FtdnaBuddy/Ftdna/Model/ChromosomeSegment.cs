@@ -1,4 +1,4 @@
-﻿namespace AsdaLoader.Ftdna.Model
+﻿namespace FtdnaBuddy.Ftdna.Model
 {
     public class ChromosomeSegment
     {

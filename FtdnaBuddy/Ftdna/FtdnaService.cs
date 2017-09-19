@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using AsdaLoader.Ftdna.Model;
+using FtdnaBuddy.Ftdna.Model;
 
-namespace AsdaLoader.Ftdna
+namespace FtdnaBuddy.Ftdna
 {
     public class FtdnaService
     {

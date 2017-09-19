@@ -7,12 +7,12 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AsdaLoader.Ftdna.CsvParsing;
-using AsdaLoader.Ftdna.Model;
 using CsvHelper;
+using FtdnaBuddy.Ftdna.CsvParsing;
+using FtdnaBuddy.Ftdna.Model;
 using Newtonsoft.Json;
 
-namespace AsdaLoader.Ftdna
+namespace FtdnaBuddy.Ftdna
 {
     public class FtdnaConnector
     {

@@ -9,6 +9,7 @@
     <Folder Include="Ftdna\" />
     <Folder Include="Ftdna\Model\" />
     <Folder Include="Ftdna\CsvParsing\" />
+    <Folder Include="Model\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.2" />

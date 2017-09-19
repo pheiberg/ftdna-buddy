@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using AsdaLoader.Ftdna;
-using AsdaLoader.Ftdna.Model;
+using FtdnaBuddy.Ftdna;
+using FtdnaBuddy.Ftdna.Model;
 
-namespace AsdaLoader
+namespace FtdnaBuddy
 {
     class Program
     {

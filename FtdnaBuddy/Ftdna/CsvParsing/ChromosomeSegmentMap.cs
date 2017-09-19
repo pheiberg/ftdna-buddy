@@ -1,7 +1,7 @@
-﻿using AsdaLoader.Ftdna.Model;
+﻿using FtdnaBuddy.Ftdna.Model;
 using CsvHelper.Configuration;
 
-namespace AsdaLoader.Ftdna.CsvParsing
+namespace FtdnaBuddy.Ftdna.CsvParsing
 {
     public sealed class ChromosomeSegmentMap : CsvClassMap<ChromosomeSegment>
 	{
