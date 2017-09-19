@@ -22,7 +22,7 @@ namespace FtdnaBuddy
             try
             {
                 var user = service.Login(args[0], args[1]);
-                TestFunctions(conn, service, user);
+                TestFunctions(conn, service);
             }
             catch (Exception ex)
             {
@@ -36,21 +36,21 @@ namespace FtdnaBuddy
             return 0;
         }
 
-        static void TestFunctions(FtdnaConnector conn, FtdnaService service, FtdnaUser user)
+        static void TestFunctions(FtdnaConnector conn, FtdnaService service)
         {
-            var matchData = service.ListMatches();
+            var matchData = service.ListMatches().Result;
             foreach (var match in matchData)
             {
                 Console.WriteLine($"{match.MatchPersonName} - Tot {match.TotalCM} cM - LB {match.LongestCentimorgans} cM");
             }
-            var segments = conn.ListChromosomeSegmentsAsync(user.EncryptedKitId).Result;
+            var segments = service.ListChromosomeSegmentsByMatchName().Result;
             foreach (var segment in segments)
             {
                 Console.WriteLine($"{segment.MatchName} - Chr {segment.Chromosome} - {segment.Centimorgans} cM");
             }
-            var aMatch = matchData.Data.First();
-            var inCommonWith = conn.ListInCommonWithAsync(aMatch.ResultId2).Result;
-            foreach (var icw in inCommonWith.Data)
+            var aMatch = matchData.First();
+            var inCommonWith = service.ListInCommonWith(aMatch).Result;
+            foreach (var icw in inCommonWith)
             {
                 Console.WriteLine($"ICW {aMatch.Name} - {icw.Name}");
             }
