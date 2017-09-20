@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using FtdnaBuddy.Ftdna;
-using FtdnaBuddy.Ftdna.Model;
 
 namespace FtdnaBuddy
 {
@@ -16,13 +15,12 @@ namespace FtdnaBuddy
                 return -1;    
             }
 
-			var conn = new FtdnaConnector();
-			var service = new FtdnaService(conn);
+			var service = new FtdnaService();
 
             try
             {
                 var user = service.Login(args[0], args[1]);
-                TestFunctions(conn, service);
+                TestFunctions(service);
             }
             catch (Exception ex)
             {
@@ -36,7 +34,7 @@ namespace FtdnaBuddy
             return 0;
         }
 
-        static void TestFunctions(FtdnaConnector conn, FtdnaService service)
+        static void TestFunctions(FtdnaService service)
         {
             var matchData = service.ListMatches().Result;
             foreach (var match in matchData)
@@ -54,7 +52,7 @@ namespace FtdnaBuddy
             {
                 Console.WriteLine($"ICW {aMatch.Name} - {icw.Name}");
             }
-            var details = conn.GetMatchDetailsAsync(aMatch.ResultId1, aMatch.ResultId2).Result.Result;
+            var details = service.GetMatchDetails(aMatch).Result;
             Console.WriteLine($"{aMatch.Name} details: Segments:{details.Segments}, of which larger than 5cM: {details?.FFCMData.Count(s => s.Cm > 5)}");
         }
     }
