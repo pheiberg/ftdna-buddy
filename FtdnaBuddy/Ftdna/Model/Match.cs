@@ -1,7 +1,9 @@
 ﻿using System;
+using FtdnaBuddy.Ftdna.QueryModel;
+
 namespace FtdnaBuddy.Ftdna.Model
 {
-    public class Match
+    public class Match : IKitData
     {
         public string AboutMe { get; set; }
 
@@ -87,6 +89,12 @@ namespace FtdnaBuddy.Ftdna.Model
 
         public int Rownum { get; set; }
 
+        public Sex Sex 
+        { 
+            get { return Female ? Sex.Female : Sex.Male; } 
+            set { Female = value == Sex.Female; } 
+        }
+
         public string Suffix { get; set; }
 
         public string SuggestedRelationship { get; set; }
@@ -100,5 +108,5 @@ namespace FtdnaBuddy.Ftdna.Model
         public string YDNAMarkers { get; set; }
 
         public string YHaplo { get; set; }
-    }
+     }
 }

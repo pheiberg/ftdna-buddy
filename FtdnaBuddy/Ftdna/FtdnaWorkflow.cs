@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using FtdnaBuddy.Ftdna.Model;
 using FtdnaBuddy.Ftdna.QueryModel;
 using FtdnaBuddy.Ftdna.Serialization;
@@ -21,6 +24,7 @@ namespace FtdnaBuddy.Ftdna
         {
             var user = StartSession(kitNumber, password);
             var profile = CreateProfile(kitNumber);
+            UpdateMatches(profile);
             StoreProfile(profile);
         }
 
@@ -56,6 +60,34 @@ namespace FtdnaBuddy.Ftdna
             {
 				return serializer.Deserialize(file);
             }
+        }
+
+        private void UpdateMatches(Profile profile)
+        {
+            if (DateTime.Now - profile.LastUpdated < TimeSpan.FromDays(1))
+            {
+                _logger.LogInfo("All matches are already up to date");
+                return;
+            }
+
+            Task<IEnumerable<Match>> matchTask;
+            if (profile.MatchCount == 0)
+            {
+                _logger.LogInfo("Fetching all matches...");
+                matchTask = _service.ListAllMatches();
+            }
+            else
+            {
+                _logger.LogInfo($"Fetching new matches since {profile.LastUpdated.ToShortDateString()}");
+                matchTask = _service.ListNewMatches(profile.LastUpdated);
+            }
+
+            var matches = matchTask.Result;
+            var kits = matches.Select(m => ModelBuilder.BuildKit(m, DateTime.Now));
+            profile.AddMatches(kits);
+            profile.LastUpdated = DateTime.Now;
+
+            _logger.LogInfo($"Done fetching {matches.Count()} matches");
         }
 
         private void StoreProfile(Profile profile)

@@ -47,16 +47,22 @@ namespace FtdnaBuddy.Ftdna.Serialization
             {
                 KitNumber = profile.KitNumber;
 				Matches = profile.Matches.Select(m => new FlatKit(m)).ToArray();
+                LastUpdated = profile.LastUpdated;
             }
 
             public string KitNumber { get; set; }
+
+            public DateTime LastUpdated { get; set; }
 
             public FlatKit[] Matches { get; set; }
 
             public Profile ToProfile()
             {
-				var profile = new Profile(KitNumber);
-				var kits = Matches.Select(fp => fp.ToUnconnectedKit()).ToArray();
+                var profile = new Profile(KitNumber)
+                {
+                    LastUpdated = LastUpdated
+                };
+                var kits = Matches.Select(fp => fp.ToUnconnectedKit()).ToArray();
 				var kitMap = kits.ToDictionary(k => k.ResultId2);
 
 				foreach (var kit in kits)
@@ -76,7 +82,7 @@ namespace FtdnaBuddy.Ftdna.Serialization
             }
         }
 
-        private class FlatKit
+        private class FlatKit : IKitData
         {
             public FlatKit()
             {
@@ -89,27 +95,83 @@ namespace FtdnaBuddy.Ftdna.Serialization
                 ResultId2 = kit.ResultId2;
                 Name = kit.Name;
                 UserSurnames = kit.UserSurnames;
-                IsMaternal = kit.IsMaternal;
-                IsPaternal = kit.IsPaternal;
                 Sex = kit.Sex;
 
                 IcwIds = kit.InCommonWith.Select(k => k.ResultId2).ToArray();
                 SegmentMatches = kit.SegmentMatches.ToArray();
             }
 
+			public string AboutMe { get; set; }
+
+			public string Email { get; set; }
+
+			public string FamilyTreeUrl { get; set; }
+
+			public string FirstName { get; set; }
+
+			public bool HasFamilyTree { get; set; }
+
+			public bool IsXMatch { get; set; }
+
+			public string KitEncrypted { get; set; }
+
+			public string LastName { get; set; }
+
+			public DateTime LastUpdated { get; set; }
+
+			public double LongestCentimorgans { get; set; }
+
+			public bool MatchKitRelease { get; set; }
+
+			public string MatchPersonName { get; set; }
+
+			public string MaternalAncestorName { get; set; }
+
+			public string MiddleName { get; set; }
+
+			public string MtDNAMarkers { get; set; }
+
+			public string MtHaplo { get; set; }
+
+			public string Name { get; set; }
+
+			public string Note { get; set; }
+
+			public string PaternalAncestorName { get; set; }
+
+			public string Prefix { get; set; }
+
+			public DateTime RbDate { get; set; }
+
+			public int RelationsGroupId { get; set; }
+
+			public int Relationship { get; set; }
+
+			public int RelationshipDistance { get; set; }
+
+			public int? RelationshipId { get; set; }
+
+			public string RelationshipRange { get; set; }
+
+			public Guid ResultGuid { get; set; }
+
 			public string ResultId1 { get; set; }
 
 			public string ResultId2 { get; set; }
 
-			public string Name { get; set; }
+			public Sex Sex { get; set; }
+
+			public string SuggestedRelationship { get; set; }
+
+			public double TotalCM { get; set; }
+
+			public bool ThirdParty { get; set; }
 
 			public string UserSurnames { get; set; }
 
-			public bool IsMaternal { get; set; }
+			public string YDNAMarkers { get; set; }
 
-			public bool IsPaternal { get; set; }
-
-			public Sex Sex { get; set; }
+			public string YHaplo { get; set; }
 
             public string[] IcwIds { get; set; }
 
@@ -117,16 +179,8 @@ namespace FtdnaBuddy.Ftdna.Serialization
 
             public Kit ToUnconnectedKit()
             {
-                Kit kit = new Kit
-                {
-                    ResultId1 = ResultId1,
-                    ResultId2 = ResultId2,
-                    Name = Name,
-                    UserSurnames = UserSurnames,
-                    IsMaternal = IsMaternal,
-                    IsPaternal = IsPaternal,
-                    Sex = Sex
-                };
+                Kit kit = ModelBuilder.BuildKit(this);
+                kit.LastUpdated = LastUpdated;
                 foreach(var segment in SegmentMatches)
                 {
                     kit.AddSegmentMatch(segment);
