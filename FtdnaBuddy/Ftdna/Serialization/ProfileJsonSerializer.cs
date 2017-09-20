@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using FtdnaBuddy.Ftdna.QueryModel;
 using Newtonsoft.Json;
@@ -15,10 +16,24 @@ namespace FtdnaBuddy.Ftdna.Serialization
             return JsonConvert.SerializeObject(flatProfile);
         }
 
+		public void Serialize(Profile profile, StreamWriter stream)
+		{
+			var flatProfile = new FlatProfile(profile);
+            var jsonWriter = new JsonTextWriter(stream);
+            _serializer.Serialize(jsonWriter, flatProfile);
+		}
+
 		public Profile Deserialize(string json)
 		{
             var flatProfile = JsonConvert.DeserializeObject<FlatProfile>(json);
             return flatProfile.ToProfile();
+		}
+
+		public Profile Deserialize(StreamReader stream)
+		{
+            var jsonReader = new JsonTextReader(stream);
+            var flatProfile = _serializer.Deserialize<FlatProfile>(jsonReader);
+			return flatProfile.ToProfile();
 		}
 
         private class FlatProfile

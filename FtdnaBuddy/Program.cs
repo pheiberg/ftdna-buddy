@@ -20,7 +20,7 @@ namespace FtdnaBuddy
 
 			var service = new FtdnaService();
             var logger = new ConsoleLogger();
-            var workflow = new FtdnaWorkflow(service, consoleLogger);
+            var workflow = new FtdnaWorkflow(service, logger);
 
             try
             {

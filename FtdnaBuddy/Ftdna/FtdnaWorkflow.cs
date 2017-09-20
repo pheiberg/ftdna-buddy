@@ -43,24 +43,38 @@ namespace FtdnaBuddy.Ftdna
 
         private Profile CreateProfile(string kitNumber)
         {
-            if (!File.Exists($"{kitNumber}.json"))
+            string fileName = CreateFileName(kitNumber);
+            if (!File.Exists(fileName))
             {
                 return new Profile(kitNumber);
             }
 
             _logger.LogInfo("Loading existing profile...");
-            var json = File.ReadAllText($"{kitNumber}.json");
-            var serializer = new ProfileJsonSerializer();
-            return serializer.Deserialize(json);
+
+			var serializer = new ProfileJsonSerializer();
+            using (var file = File.OpenText(fileName))
+            {
+				return serializer.Deserialize(file);
+            }
         }
 
         private void StoreProfile(Profile profile)
         {
+            string fileName = CreateFileName(profile.KitNumber);
             _logger.LogInfo("Saving profile...");
             var serializer = new ProfileJsonSerializer();
-            string serialized = serializer.Serialize(profile);
-            File.WriteAllText($"{profile.KitNumber}.json", serialized);
+            using (var file = File.OpenWrite(fileName))
+            using (var writer = new StreamWriter(file))
+            {
+                serializer.Serialize(profile, writer);
+            }
+
             _logger.LogInfo("Profile was saved");
         }
+
+		private static string CreateFileName(string kitNumber)
+		{
+			return $"{kitNumber}.json";
+		}
     }
 }
