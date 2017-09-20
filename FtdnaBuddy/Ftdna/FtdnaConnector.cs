@@ -100,17 +100,28 @@ namespace FtdnaBuddy.Ftdna
             }
         }
 
-        public async Task<MatchResults> ListMatches(int pageSize, int page)
+        public async Task<MatchResults> ListAllMatches(int pageSize, int page)
+        {
+            var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=0&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=relationshipPercentage()&trial=0";
+            return await ListMatches(uri);
+        }
+
+		public async Task<MatchResults> ListNewMatches(int pageSize, int page, DateTime startDate)
+		{
+            string formattedDate = startDate.ToString("yyyy-MM-dd T00:00:00.000Z");
+            var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=10&filterSince={formattedDate}&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=rbDate&trial=0";
+			return await ListMatches(uri);
+		}
+
+        private async Task<MatchResults> ListMatches(string uri)
         {
             JsonSerializer serializer = new JsonSerializer();
+			var request = new HttpRequestMessage(HttpMethod.Get, uri);
+			request.Headers.Accept.ParseAdd(PageAcceptHeader);
+			request.Headers.Referrer = new Uri(BaseUri + "my/default.aspx");
 
-            var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=0&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=relationshipPercentage()&trial=0";
-            var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Accept.ParseAdd(PageAcceptHeader);
-            request.Headers.Referrer = new Uri(BaseUri + "my/default.aspx");
-
-            var result = await _client.SendAsync(request);
-            return await GetJsonResponse<MatchResults>(result);
+			var result = await _client.SendAsync(request);
+			return await GetJsonResponse<MatchResults>(result);
         }
 
         public async Task<IEnumerable<ChromosomeSegment>> ListChromosomeSegmentsAsync(string ekitId)

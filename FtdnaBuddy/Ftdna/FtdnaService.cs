@@ -33,7 +33,7 @@ namespace FtdnaBuddy.Ftdna
             return _user;
         }
 
-        public async Task<IEnumerable<Match>> ListMatches()
+        public async Task<IEnumerable<Match>> ListAllMatches()
         {
             RequireLogin();
 
@@ -46,12 +46,32 @@ namespace FtdnaBuddy.Ftdna
                     await Task.Delay(BatchDelay);
                 }
 
-                var matchResult = await _connector.ListMatches(PageSize, page);
+                var matchResult = await _connector.ListAllMatches(PageSize, page);
                 result.AddRange(matchResult.Data);
                 done = matchResult.Count != PageSize;
             }
             return result;
         }
+
+		public async Task<IEnumerable<Match>> ListNewMatches(DateTime startDate)
+		{
+			RequireLogin();
+
+			var result = new List<Match>(PageSize);
+			bool done = false;
+			for (int page = 1; !done; page++)
+			{
+				if (page > 1)
+				{
+					await Task.Delay(BatchDelay);
+				}
+
+				var matchResult = await _connector.ListNewMatches(PageSize, page, startDate);
+				result.AddRange(matchResult.Data);
+				done = matchResult.Count != PageSize;
+			}
+			return result;
+		}
 
         public async Task<IEnumerable<ChromosomeSegment>> ListChromosomeSegmentsByMatchName()
         {

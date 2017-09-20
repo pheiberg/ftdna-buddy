@@ -36,7 +36,14 @@ namespace FtdnaBuddy
 
         static void TestFunctions(FtdnaService service)
         {
-            var matchData = service.ListMatches().Result;
+            DateTime startDate = DateTime.Now.AddDays(-7);
+            var newMatchData = service.ListNewMatches(startDate).Result;
+            Console.WriteLine($"New matches since: {startDate.ToShortDateString()}");
+			foreach (var match in newMatchData)
+			{
+				Console.WriteLine($"{match.MatchPersonName} - Tot {match.TotalCM} cM - LB {match.LongestCentimorgans} cM");
+			}
+            var matchData = service.ListAllMatches().Result;
             foreach (var match in matchData)
             {
                 Console.WriteLine($"{match.MatchPersonName} - Tot {match.TotalCM} cM - LB {match.LongestCentimorgans} cM");
