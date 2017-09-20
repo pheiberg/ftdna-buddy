@@ -11,23 +11,27 @@ namespace FtdnaBuddy
             if(args.Length != 2)
             {
                 Console.Error.WriteLine("Wrong number of arguments!");
-                Console.Error.WriteLine("Usage: ./AsdaLoader.exe KitNumber Password");
+                Console.Error.WriteLine("Usage: ./FtdnaBuddy.exe KitNumber Password");
                 return -1;    
             }
 
+			string kitNumber = args[0];
+			string password = args[1];
+
 			var service = new FtdnaService();
-            var workflow = new FtdnaWorkflow(service, new ConsoleLogger());
+            var logger = new ConsoleLogger();
+            var workflow = new FtdnaWorkflow(service, consoleLogger);
 
             try
             {
-                workflow.Execute(args[0], args[1]);
+                workflow.Execute(kitNumber, password);
             }
             catch (Exception ex)
             {
                 var error = ex;
                 while (error.InnerException != null)
                     error = error.InnerException;
-                Console.Error.WriteLine(ex);
+                logger.LogError(ex.ToString());
 
                 return -1;
             }
