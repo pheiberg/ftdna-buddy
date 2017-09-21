@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Regex = System.Text.RegularExpressions.Regex;
 using System.Threading.Tasks;
 using FtdnaBuddy.Ftdna.Model;
 using FtdnaBuddy.Ftdna.QueryModel;
@@ -24,7 +25,8 @@ namespace FtdnaBuddy.Ftdna
         {
             var user = StartSession(kitNumber, password);
             var profile = CreateProfile(kitNumber);
-            UpdateMatches(profile);
+            var updatedKits = UpdateMatches(profile);
+            UpdateSegments(updatedKits);
             StoreProfile(profile);
         }
 
@@ -62,12 +64,12 @@ namespace FtdnaBuddy.Ftdna
             }
         }
 
-        private void UpdateMatches(Profile profile)
+        private IEnumerable<Kit> UpdateMatches(Profile profile)
         {
             if (DateTime.Now - profile.LastUpdated < TimeSpan.FromDays(1))
             {
                 _logger.LogInfo("All matches are already up to date");
-                return;
+                return Enumerable.Empty<Kit>();
             }
 
             Task<IEnumerable<Match>> matchTask;
@@ -88,9 +90,42 @@ namespace FtdnaBuddy.Ftdna
             profile.LastUpdated = DateTime.Now;
 
             _logger.LogInfo($"Done fetching {matches.Count()} matches");
+            return kits;
         }
 
-        private void StoreProfile(Profile profile)
+        private void UpdateSegments(IEnumerable<Kit> kits)
+        {
+            _logger.LogInfo("Fetching segment information...");
+            var segments = _service.ListChromosomeSegmentsByMatchName().Result.ToArray();
+            var segmentMap = segments.ToLookup(s => NormalizeName(s.MatchName));
+
+            foreach(var kit in kits)
+            {
+                var kitSegments = segmentMap[NormalizeName(kit.Name)];
+
+                foreach (var kitSegment in kitSegments)
+                {
+                    kit.AddSegmentMatch(kitSegment.Chromosome, 
+                                       kitSegment.StartLocation,
+                                       kitSegment.EndLocation,
+                                       kitSegment.MatchingSnps);
+                }
+
+                if(!kitSegments.Any())
+                {
+                    _logger.LogInfo($"Warning: No segments could be found for {kit.Name}");
+                }
+            }
+
+            _logger.LogInfo($"Done fetching {segments.Length} pieces of segment information");
+        }
+
+        private string NormalizeName(string name)
+        {
+            return Regex.Replace(name, "^[\\w]", "").ToLower();
+        }
+
+		private void StoreProfile(Profile profile)
         {
             string fileName = CreateFileName(profile.KitNumber);
             _logger.LogInfo("Saving profile...");
