@@ -29,7 +29,7 @@ namespace FtdnaBuddy.Ftdna
             var token = _connector.GetVerificationTokenAsync().Result;
             var loginResult = _connector.LoginAsync(kitNumber, password).Result;
             var ekitId = _connector.GetEkitIdAsync().Result;
-            _user = new FtdnaUser(ekitId, token); 
+            _user = new FtdnaUser(kitNumber, ekitId, token); 
 
             return _user;
         }

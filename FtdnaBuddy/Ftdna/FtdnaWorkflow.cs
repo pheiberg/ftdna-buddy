@@ -13,10 +13,10 @@ namespace FtdnaBuddy.Ftdna
 {
     public class FtdnaWorkflow
     {
-        readonly FtdnaService _service;
+        readonly IDnaDataService _service;
         readonly ILogger _logger;
 
-        public FtdnaWorkflow(FtdnaService service, ILogger logger)
+        public FtdnaWorkflow(IDnaDataService service, ILogger logger)
         {
             _service = service;
             _logger = logger;
