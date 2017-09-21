@@ -6,7 +6,7 @@ using FtdnaBuddy.Ftdna.QueryModel;
 
 namespace FtdnaBuddy.Ftdna
 {
-    public class FtdnaService
+    public class FtdnaService : IDnaDataService
     {
         const int PageSize = 1500;
         public const int BatchDelay = 3000;
