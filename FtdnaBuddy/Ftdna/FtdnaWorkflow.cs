@@ -27,6 +27,7 @@ namespace FtdnaBuddy.Ftdna
             var profile = CreateProfile(kitNumber);
             var updatedKits = UpdateMatches(profile);
             UpdateSegments(updatedKits);
+            AddInCommonWith(updatedKits);
             StoreProfile(profile);
         }
 
@@ -118,6 +119,21 @@ namespace FtdnaBuddy.Ftdna
             }
 
             _logger.LogInfo($"Done fetching {segments.Length} pieces of segment information");
+        }
+
+        private void AddInCommonWith(IEnumerable<Kit> kits)
+        {
+            _logger.LogInfo("Fetching ICW information...");
+			foreach (var kit in kits)
+			{
+				var icws = _service.ListInCommonWith(kit).Result;
+
+				foreach (var icw in icws)
+				{
+					kit.AddInCommonWith(icw);
+				}
+			}
+            _logger.LogInfo("Done fetching ICW");
         }
 
         private string NormalizeName(string name)

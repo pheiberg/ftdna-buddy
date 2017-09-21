@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FtdnaBuddy.Ftdna.Model;
+using FtdnaBuddy.Ftdna.QueryModel;
 
 namespace FtdnaBuddy.Ftdna
 {
@@ -79,7 +80,7 @@ namespace FtdnaBuddy.Ftdna
             return await _connector.ListChromosomeSegmentsAsync(_user.EncryptedKitId);
         }
 
-		public async Task<IEnumerable<Match>> ListInCommonWith(Match match)
+		public async Task<IEnumerable<Match>> ListInCommonWith(IKitIdentity match)
 		{
 			RequireLogin();
 
@@ -99,7 +100,7 @@ namespace FtdnaBuddy.Ftdna
 			return result;
 		}
 
-		public async Task<MatchDetails> GetMatchDetails(Match match)
+		public async Task<MatchDetails> GetMatchDetails(IKitIdentity match)
 		{
 			RequireLogin();
             var detailsResult = await _connector.GetMatchDetailsAsync(match.ResultId1, match.ResultId2);

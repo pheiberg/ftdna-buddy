@@ -3,7 +3,7 @@ using FtdnaBuddy.Ftdna.QueryModel;
 
 namespace FtdnaBuddy.Ftdna.Model
 {
-    public class Match : IKitData
+    public class Match : IKitData, IKitIdentity
     {
         public string AboutMe { get; set; }
 

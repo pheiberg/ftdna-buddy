@@ -23,7 +23,7 @@ namespace FtdnaBuddy.Ftdna.QueryModel
 
         public void AddMatches(IEnumerable<Kit> matches)
         {
-            foreach(var kit in matches)
+            foreach (var kit in matches)
             {
                 AddMatch(kit);
             }
@@ -44,7 +44,7 @@ namespace FtdnaBuddy.Ftdna.QueryModel
         }
     }
 
-    public class Kit : IKitData
+    public class Kit : IKitData, IKitIdentity
     {
         private readonly IList<Kit> _icw = new List<Kit>();
 
@@ -128,14 +128,22 @@ namespace FtdnaBuddy.Ftdna.QueryModel
 
         public int SegmentMatchCount => _segment.Count;
 
-        internal void AddInCommonWith(Kit match)
-        {
-            bool exists = _icw.Any(i => i.ResultId2 == match.ResultId2);
-            if (exists)
-                return;
+        internal Profile Profile { get; set; }
 
-            _icw.Add(match);
-            match._icw.Add(this);
+        internal Kit AddInCommonWith(IKitIdentity match)
+        {
+            Kit existingMatch = Profile.Matches.SingleOrDefault(m =>
+                                     m.ResultId2 == match.ResultId2);
+            if (existingMatch == null)
+                throw new ICWNotFoundAsAMatchException("ICW must be a profile match");
+
+            Kit icwAlreadyAdded = _icw.SingleOrDefault(i => i.ResultId2 == match.ResultId2);
+            if (icwAlreadyAdded != null)
+                return icwAlreadyAdded;
+
+            _icw.Add(existingMatch);
+            existingMatch._icw.Add(this);
+            return existingMatch;
         }
 
         internal void AddSegmentMatch(SegmentMatch segment)
@@ -180,76 +188,85 @@ namespace FtdnaBuddy.Ftdna.QueryModel
         Male
     }
 
-    public interface IKitData 
+    public interface IKitData
     {
         string AboutMe { get; set; }
 
-	    string Email { get; set; }
+        string Email { get; set; }
 
-	    string FamilyTreeUrl { get; set; }
+        string FamilyTreeUrl { get; set; }
 
-	    string FirstName { get; set; }
+        string FirstName { get; set; }
 
-	    bool HasFamilyTree { get; set; }
+        bool HasFamilyTree { get; set; }
 
-	    bool IsXMatch { get; set; }
+        bool IsXMatch { get; set; }
 
         string KitEncrypted { get; set; }
 
         string LastName { get; set; }
 
-	    double LongestCentimorgans { get; set; }
+        double LongestCentimorgans { get; set; }
 
-	    bool MatchKitRelease { get; set; }
+        bool MatchKitRelease { get; set; }
 
-	    string MatchPersonName { get; set; }
+        string MatchPersonName { get; set; }
 
-    	string MaternalAncestorName { get; set; }
+        string MaternalAncestorName { get; set; }
 
-    	string MiddleName { get; set; }
+        string MiddleName { get; set; }
 
-    	string MtDNAMarkers { get; set; }
+        string MtDNAMarkers { get; set; }
 
-    	string MtHaplo { get; set; }
+        string MtHaplo { get; set; }
 
-    	string Name { get; set; }
+        string Name { get; set; }
 
-    	string Note { get; set; }
+        string Note { get; set; }
 
-    	string PaternalAncestorName { get; set; }
+        string PaternalAncestorName { get; set; }
 
-    	string Prefix { get; set; }
+        string Prefix { get; set; }
 
-    	DateTime RbDate { get; set; }
+        DateTime RbDate { get; set; }
 
-    	int RelationsGroupId { get; set; }
+        int RelationsGroupId { get; set; }
 
-    	int Relationship { get; set; }
+        int Relationship { get; set; }
 
-    	int RelationshipDistance { get; set; }
+        int RelationshipDistance { get; set; }
 
-    	int? RelationshipId { get; set; }
+        int? RelationshipId { get; set; }
 
-    	string RelationshipRange { get; set; }
+        string RelationshipRange { get; set; }
 
-    	Guid ResultGuid { get; set; }
+        Guid ResultGuid { get; set; }
 
-    	string ResultId1 { get; set; }
+        string ResultId1 { get; set; }
 
-    	string ResultId2 { get; set; }
+        string ResultId2 { get; set; }
 
-    	Sex Sex { get; set; }
+        Sex Sex { get; set; }
 
-    	string SuggestedRelationship { get; set; }
+        string SuggestedRelationship { get; set; }
 
-    	double TotalCM { get; set; }
+        double TotalCM { get; set; }
 
-    	bool ThirdParty { get; set; }
+        bool ThirdParty { get; set; }
 
-    	string UserSurnames { get; set; }
+        string UserSurnames { get; set; }
 
-    	string YDNAMarkers { get; set; }
+        string YDNAMarkers { get; set; }
 
-    	string YHaplo { get; set; }
+        string YHaplo { get; set; }
+    }
+
+    public class ICWNotFoundAsAMatchException : Exception
+    {
+        public ICWNotFoundAsAMatchException(string message) :
+            base(message)
+        {
+            
+        }
     }
 }
