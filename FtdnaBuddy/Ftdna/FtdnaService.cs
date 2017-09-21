@@ -9,7 +9,7 @@ namespace FtdnaBuddy.Ftdna
     public class FtdnaService
     {
         const int PageSize = 1500;
-        const int BatchDelay = 3000;
+        public const int BatchDelay = 3000;
 
         readonly FtdnaConnector _connector;
         FtdnaUser _user;
