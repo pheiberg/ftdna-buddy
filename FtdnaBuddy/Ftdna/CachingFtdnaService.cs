@@ -10,7 +10,8 @@ namespace FtdnaBuddy.Ftdna
 {
 	public class CachingDataService : IDnaDataService
 	{
-		readonly IDnaDataService _service;
+        private const string CacheDirectory = "__cache";
+        readonly IDnaDataService _service;
 		readonly JsonSerializer _serializer = new JsonSerializer();
         FtdnaUser _user;
 
@@ -79,11 +80,21 @@ namespace FtdnaBuddy.Ftdna
 
 		private void StoreResult<T>(string methodKey, T result, string parameterKeys = null)
         {
+            EnsureDirectoryExists(CacheDirectory);
+
             string fileName = GetFileName(methodKey, parameterKeys);
-            using (var file = File.OpenWrite(fileName))
+            using (var file = File.OpenWrite(Path.Combine(CacheDirectory, fileName)))
             using (var writer = new StreamWriter(file))
             {
                 _serializer.Serialize(writer, result);
+            }
+        }
+
+        private void EnsureDirectoryExists(string directoryName)
+        {
+            if(!Directory.Exists(directoryName))
+            {
+                Directory.CreateDirectory(directoryName);
             }
         }
 
