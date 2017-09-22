@@ -8,17 +8,17 @@ namespace FtdnaBuddy
     {
         static int Main(string[] args)
         {
-            if(args.Length != 2)
-            {
-                Console.Error.WriteLine("Wrong number of arguments!");
-                Console.Error.WriteLine("Usage: ./FtdnaBuddy.exe KitNumber Password");
-                return -1;    
-            }
+			if(args.Length != 2)
+			{
+			    Console.Error.WriteLine("Wrong number of arguments!");
+			    Console.Error.WriteLine("Usage: ./FtdnaBuddy.exe KitNumber Password");
+			    return -1;    
+			}
 
-            string kitNumber = args[0];
-            string password = args[1];
+			string kitNumber = args[0];
+			string password = args[1];
 
-            var service = new CachingDataService(new FtdnaService(requestDelay: 2000));
+			var service = new CachingDataService(new FtdnaService(requestDelay: 2000));
             var logger = new ConsoleLogger();
             var workflow = new FtdnaWorkflow(service, logger);
 

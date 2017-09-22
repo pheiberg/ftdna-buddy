@@ -5,5 +5,7 @@
         void LogInfo(string text);
 
         void LogError(string text);
+
+        ConsoleProgressBar ShowProgress(int max);
     }
 }

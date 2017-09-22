@@ -144,9 +144,9 @@ namespace FtdnaBuddy.Ftdna
         private void AddInCommonWith(IEnumerable<Kit> kits)
         {
             int kitCount = kits.Count();
-            int etaInS = (kitCount - 1) * 2;
             _logger.LogInfo("Fetching ICW information...");
-            _logger.LogInfo($"Estimated ETA {etaInS / 60} m {etaInS % 60} s");
+            ConsoleProgressBar progress = _logger.ShowProgress(kitCount);
+            int kitIndex = 1;
 			foreach (var kit in kits)
 			{
 				var icws = _service.ListInCommonWith(kit).Result;
@@ -155,6 +155,7 @@ namespace FtdnaBuddy.Ftdna
 				{
 					kit.AddInCommonWith(icw);
 				}
+                progress.Draw(kitIndex++);
 			}
             _logger.LogInfo("Done fetching ICW");
         }
