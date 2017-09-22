@@ -105,6 +105,20 @@ namespace FtdnaBuddy.Ftdna
             {
                 var kitSegments = segmentMap[NormalizeName(kit.Name)];
 
+				if (!kitSegments.Any())
+				{
+					_logger.LogInfo($"Warning: No segments could be found for {kit.Name}, falling back to fetching details...");
+					var details = _service.GetMatchDetails(kit).Result;
+                    kitSegments = details.FFCMData.Select(s => new ChromosomeSegment{
+                        Chromosome = s.Chromosome,
+                        StartLocation = s.P1,
+                        EndLocation = s.P2,
+                        Centimorgans = s.Cm,
+                        MatchingSnps = s.Snps
+                    });
+                    _logger.LogInfo($"Fetching {kitSegments.Count()} segments from details");
+				}
+
                 foreach (var kitSegment in kitSegments)
                 {
                     kit.AddSegmentMatch(kitSegment.Chromosome, 
@@ -112,14 +126,9 @@ namespace FtdnaBuddy.Ftdna
                                        kitSegment.EndLocation,
                                        kitSegment.MatchingSnps);
                 }
-
-                if(!kitSegments.Any())
-                {
-                    _logger.LogInfo($"Warning: No segments could be found for {kit.Name}");
-                }
             }
 
-            _logger.LogInfo($"Done fetching {segments.Length} pieces of segment information");
+            _logger.LogInfo($"Done processing segment information");
         }
 
         private void AddInCommonWith(IEnumerable<Kit> kits)
@@ -143,7 +152,7 @@ namespace FtdnaBuddy.Ftdna
 
         private string NormalizeName(string name)
         {
-            return Regex.Replace(name, "^[\\w]", "").ToLower();
+            return Regex.Replace(name, "[^\\w]", "").ToLower();
         }
 
 		private void StoreProfile(Profile profile)
