@@ -102,33 +102,44 @@ namespace FtdnaBuddy.Ftdna
 
             foreach(var kit in kits)
             {
-                var kitSegments = segmentMap[NormalizeName(kit.Name)];
-
-				if (!kitSegments.Any())
-				{
-					_logger.LogInfo($"Warning: No segments could be found for {kit.Name}, falling back to fetching details...");
-					var details = _service.GetMatchDetails(kit).Result;
-                    kitSegments = details.FFCMData.Select(s => new ChromosomeSegment{
-                        Chromosome = s.Chromosome,
-                        StartLocation = s.P1,
-                        EndLocation = s.P2,
-                        Centimorgans = s.Cm,
-                        MatchingSnps = s.Snps
-                    });
-                    _logger.LogInfo($"Fetching {kitSegments.Count()} segments from details");
-				}
-
-                foreach (var kitSegment in kitSegments)
-                {
-                    kit.AddSegmentMatch(kitSegment.Chromosome, 
-                                       kitSegment.StartLocation,
-                                       kitSegment.EndLocation,
-                                       kitSegment.MatchingSnps);
-                }
+                UpdateSegment(segmentMap, kit);
             }
 
             _logger.LogInfo($"Done processing segment information");
         }
+
+        private void UpdateSegment(ILookup<string, ChromosomeSegment> segmentMap, Kit kit)
+        {
+			var kitSegments = segmentMap[NormalizeName(kit.Name)];
+
+			if (!kitSegments.Any())
+			{
+				_logger.LogInfo($"Warning: No segments could be found for {kit.Name}, falling back to fetching details...");
+				var details = _service.GetMatchDetails(kit).Result;
+				kitSegments = details.FFCMData.Select(s => new ChromosomeSegment
+				{
+					Chromosome = s.Chromosome,
+					StartLocation = s.P1,
+					EndLocation = s.P2,
+					Centimorgans = s.Cm,
+					MatchingSnps = s.Snps
+				});
+				_logger.LogInfo($"Fetching {kitSegments.Count()} segments from details");
+			}
+
+			foreach (var kitSegment in kitSegments)
+			{
+				kit.AddSegmentMatch(kitSegment.Chromosome,
+								   kitSegment.StartLocation,
+								   kitSegment.EndLocation,
+								   kitSegment.MatchingSnps);
+			}
+        }
+
+		private string NormalizeName(string name)
+		{
+			return Regex.Replace(name, "[^\\w]", "").ToLower();
+		}
 
         private void AddInCommonWith(IEnumerable<Kit> kits)
         {
@@ -146,11 +157,6 @@ namespace FtdnaBuddy.Ftdna
 				}
 			}
             _logger.LogInfo("Done fetching ICW");
-        }
-
-        private string NormalizeName(string name)
-        {
-            return Regex.Replace(name, "[^\\w]", "").ToLower();
         }
 
 		private void StoreProfile(Profile profile)
