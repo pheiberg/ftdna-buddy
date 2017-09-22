@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using FtdnaBuddy.Ftdna.Model;
 using FtdnaBuddy.Ftdna.QueryModel;
 using FtdnaBuddy.Ftdna.Serialization;
-using System.Threading;
 
 namespace FtdnaBuddy.Ftdna
 {
@@ -134,7 +133,7 @@ namespace FtdnaBuddy.Ftdna
         private void AddInCommonWith(IEnumerable<Kit> kits)
         {
             int kitCount = kits.Count();
-            int etaInS = (kitCount - 1) * FtdnaService.BatchDelay / 1000;
+            int etaInS = (kitCount - 1) * 2;
             _logger.LogInfo("Fetching ICW information...");
             _logger.LogInfo($"Estimated ETA {etaInS / 60} m {etaInS % 60} s");
 			foreach (var kit in kits)
@@ -145,7 +144,6 @@ namespace FtdnaBuddy.Ftdna
 				{
 					kit.AddInCommonWith(icw);
 				}
-                Thread.Sleep(FtdnaService.BatchDelay);
 			}
             _logger.LogInfo("Done fetching ICW");
         }

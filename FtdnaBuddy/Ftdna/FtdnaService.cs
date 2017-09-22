@@ -9,12 +9,11 @@ namespace FtdnaBuddy.Ftdna
     public class FtdnaService : IDnaDataService
     {
         const int PageSize = 1500;
-        public const int BatchDelay = 3000;
 
         readonly FtdnaConnector _connector;
         FtdnaUser _user;
 
-        public FtdnaService() : this(new FtdnaConnector())
+        public FtdnaService(int requestDelay) : this(new FtdnaConnector(requestDelay))
         {
 
         }
@@ -42,11 +41,6 @@ namespace FtdnaBuddy.Ftdna
             bool done = false;
             for (int page = 1; !done; page++)
             {
-                if (page > 1)
-                {
-                    await Task.Delay(BatchDelay);
-                }
-
                 var matchResult = await _connector.ListAllMatches(PageSize, page);
                 result.AddRange(matchResult.Data);
                 done = matchResult.Count != PageSize;
@@ -62,11 +56,6 @@ namespace FtdnaBuddy.Ftdna
 			bool done = false;
 			for (int page = 1; !done; page++)
 			{
-				if (page > 1)
-				{
-					await Task.Delay(BatchDelay);
-				}
-
 				var matchResult = await _connector.ListNewMatches(PageSize, page, startDate);
 				result.AddRange(matchResult.Data);
 				done = matchResult.Count != PageSize;
@@ -88,11 +77,6 @@ namespace FtdnaBuddy.Ftdna
 			bool done = false;
 			for (int page = 1; !done; page++)
 			{
-				if (page > 1)
-				{
-					await Task.Delay(BatchDelay);
-				}
-
 				var matchResult = await _connector.ListInCommonWithAsync(match.ResultId2, PageSize, page);
 				result.AddRange(matchResult.Data);
 				done = matchResult.Count != PageSize;

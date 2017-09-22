@@ -18,7 +18,7 @@ namespace FtdnaBuddy
             string kitNumber = args[0];
             string password = args[1];
 
-            var service = new CachingDataService(new FtdnaService());
+            var service = new CachingDataService(new FtdnaService(requestDelay: 2000));
             var logger = new ConsoleLogger();
             var workflow = new FtdnaWorkflow(service, logger);
 

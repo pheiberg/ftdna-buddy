@@ -23,8 +23,11 @@ namespace FtdnaBuddy.Ftdna
         readonly CookieContainer _cookies = new CookieContainer();
         readonly HttpClient _client;
 
-        public FtdnaConnector()
+        public int RequestDelay { get; }
+            
+        public FtdnaConnector(int requestDelay)
         {
+            RequestDelay = requestDelay;
             _client = CreateClient();
         }
 
@@ -36,7 +39,16 @@ namespace FtdnaBuddy.Ftdna
                 AllowAutoRedirect = true,
                 CookieContainer = _cookies
             };
-            var client = new HttpClient(handler)
+            var throttler = new ThrottlingMessageHandler(RequestDelay, handler)
+            {
+                Filter = request => 
+                {
+					var unthrottledPaths = new[] { "sign-in", "default.aspx" };
+					bool isUnthrottled = unthrottledPaths.Any(request.RequestUri.PathAndQuery.Contains);
+					return !isUnthrottled;
+                }    
+            };
+            var client = new HttpClient(throttler)
             {
                 BaseAddress = new Uri(baseUri)
             };
