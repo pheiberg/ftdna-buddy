@@ -101,13 +101,14 @@ namespace FtdnaBuddy.Ftdna
         private bool TryGetStoredResult<T>(string methodKey, out T result, string parameterKeys = null)
         {
             string fileName = GetFileName(methodKey, parameterKeys);
-            if (!File.Exists(fileName))
+            string filePath = Path.Combine(CacheDirectory, fileName);
+            if (!File.Exists(filePath))
             {
                 result = default(T);
                 return false;
             }
 
-			using (var reader = File.OpenText(fileName))
+			using (var reader = File.OpenText(filePath))
             using(var jsonReader = new JsonTextReader(reader))
 			{
 				result = _serializer.Deserialize<T>(jsonReader);
