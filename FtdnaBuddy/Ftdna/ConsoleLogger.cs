@@ -24,7 +24,6 @@ namespace FtdnaBuddy.Ftdna
 	{
 		private const char ProgressBlockCharacter = ' ';
 		private readonly float _unitsOfWorkPerProgressBlock;
-		private readonly bool _originalCursorVisible;
 
 		/// <summary>
 		/// Color for completed portion of progress bar.
