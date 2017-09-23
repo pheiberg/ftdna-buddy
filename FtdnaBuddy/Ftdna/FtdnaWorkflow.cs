@@ -86,7 +86,7 @@ namespace FtdnaBuddy.Ftdna
             }
 
             var matches = matchTask.Result;
-            var kits = matches.Select(m => ModelBuilder.BuildKit(m, DateTime.Now));
+            var kits = matches.Select(m => ModelBuilder.BuildKit(m, DateTime.Now)).ToArray();
             profile.AddMatches(kits);
             profile.LastUpdated = DateTime.Now;
 

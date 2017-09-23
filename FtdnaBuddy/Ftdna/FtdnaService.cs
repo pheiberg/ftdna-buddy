@@ -8,8 +8,6 @@ namespace FtdnaBuddy.Ftdna
 {
     public class FtdnaService : IDnaDataService
     {
-        const int PageSize = 1500;
-
         readonly FtdnaConnector _connector;
         FtdnaUser _user;
 
@@ -37,13 +35,13 @@ namespace FtdnaBuddy.Ftdna
         {
             RequireLogin();
 
-            var result = new List<Match>(PageSize);
+            var result = new List<Match>();
             bool done = false;
             for (int page = 1; !done; page++)
             {
-                var matchResult = await _connector.ListAllMatches(PageSize, page);
+                var matchResult = await _connector.ListAllMatches(page);
                 result.AddRange(matchResult.Data);
-                done = matchResult.Count != PageSize;
+                done = matchResult.Count != FtdnaConnector.DefaultPageSize;
             }
             return result;
         }
@@ -52,13 +50,13 @@ namespace FtdnaBuddy.Ftdna
 		{
 			RequireLogin();
 
-			var result = new List<Match>(PageSize);
+			var result = new List<Match>();
 			bool done = false;
 			for (int page = 1; !done; page++)
 			{
-				var matchResult = await _connector.ListNewMatches(PageSize, page, startDate);
+				var matchResult = await _connector.ListNewMatches(startDate, page);
 				result.AddRange(matchResult.Data);
-				done = matchResult.Count != PageSize;
+				done = matchResult.Count != FtdnaConnector.DefaultPageSize;
 			}
 			return result;
 		}
@@ -73,13 +71,13 @@ namespace FtdnaBuddy.Ftdna
 		{
 			RequireLogin();
 
-			var result = new List<Match>(PageSize);
+			var result = new List<Match>();
 			bool done = false;
 			for (int page = 1; !done; page++)
 			{
-				var matchResult = await _connector.ListInCommonWithAsync(match.ResultId2, PageSize, page);
+				var matchResult = await _connector.ListInCommonWithAsync(match.ResultId2, page);
 				result.AddRange(matchResult.Data);
-				done = matchResult.Count != PageSize;
+				done = matchResult.Count != FtdnaConnector.DefaultPageSize;
 			}
 			return result;
 		}

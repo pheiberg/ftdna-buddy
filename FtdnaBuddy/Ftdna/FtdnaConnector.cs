@@ -22,6 +22,7 @@ namespace FtdnaBuddy.Ftdna
         const string SignInPath = "sign-in";
         readonly CookieContainer _cookies = new CookieContainer();
         readonly HttpClient _client;
+        public const int DefaultPageSize = 1500;
 
         public int RequestDelay { get; }
             
@@ -112,13 +113,13 @@ namespace FtdnaBuddy.Ftdna
             }
         }
 
-        public async Task<MatchResults> ListAllMatches(int pageSize, int page)
+        public async Task<MatchResults> ListAllMatches(int page = 1, int pageSize = DefaultPageSize)
         {
             var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=0&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=relationshipPercentage()&trial=0";
             return await ListMatches(uri);
         }
 
-		public async Task<MatchResults> ListNewMatches(int pageSize, int page, DateTime startDate)
+		public async Task<MatchResults> ListNewMatches(DateTime startDate, int page = 1, int pageSize = DefaultPageSize)
 		{
             string formattedDate = startDate.ToString("yyyy-MM-dd T00:00:00.000Z");
             var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=10&filterSince={formattedDate}&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=rbDate&trial=0";
@@ -154,11 +155,13 @@ namespace FtdnaBuddy.Ftdna
             }
         }
 
-        public async Task<MatchResults> ListInCommonWithAsync(string resultId2, int page = 1, int pageSize = 1500)
+        public async Task<MatchResults> ListInCommonWithAsync(string resultId2, int page = 1, int pageSize = DefaultPageSize)
         {
             var uri = $"my/family-finder-api/matches?filter3rdParty=false&filterId=5&filterResultId={resultId2}&page={page}&pageSize={pageSize}&selectedBucket=0&sortDirection=desc&sortField=relationshipPercentage()&trial=0";
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Accept.ParseAdd(PageAcceptHeader);
+			request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+			request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
+			request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
             request.Headers.Referrer = new Uri(BaseUri + "my/familyfinder/");
 
             var result = await _client.SendAsync(request);

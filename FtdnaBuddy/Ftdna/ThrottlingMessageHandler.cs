@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +17,7 @@ namespace FtdnaBuddy.Ftdna
         }
 
         /// <summary>
-        /// Gets or sets the throtteling filter. Requests are throttled if filter returns true.
+        /// Gets or sets the throttling filter. Requests are throttled if filter returns true.
         /// </summary>
         /// <value>The filter.</value>
         public Func<HttpRequestMessage, bool> Filter { get; set; } = x => true;

@@ -21,7 +21,7 @@ namespace FtdnaBuddy.Ftdna.QueryModel
 
         public IEnumerable<Kit> Matches => _matches;
 
-        public void AddMatches(IEnumerable<Kit> matches)
+        public void AddMatches(IList<Kit> matches)
         {
             foreach (var kit in matches)
             {
@@ -36,6 +36,7 @@ namespace FtdnaBuddy.Ftdna.QueryModel
                 return;
 
             _matches.Add(match);
+            match.Profile = this;
         }
 
         public IEnumerable<Kit> ListMatchesWithoutSegments()
