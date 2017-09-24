@@ -29,6 +29,7 @@ namespace FtdnaBuddy.Ftdna
             UpdateSegments(updatedKits);
             AddInCommonWith(updatedKits);
             StoreProfile(profile);
+            GenerateCsv(profile);
         }
 
         private LoginResult StartSession(string kitNumber, string password)
@@ -175,6 +176,25 @@ namespace FtdnaBuddy.Ftdna
             }
 
             _logger.LogInfo("Profile was saved");
+        }
+
+        private void GenerateCsv(Profile profile)
+        {
+            GenerateFamilyFinderCsv(profile);
+			_logger.LogInfo("Created Family Finder Matches CSV");
+            
+        }
+
+        private void GenerateFamilyFinderCsv(Profile profile)
+        {
+            var fileName = $"{profile.KitNumber}_Family_Finder_Matches.csv";
+            using(var file = File.OpenWrite(fileName))
+            {
+                foreach (var match in profile.Matches)
+                {
+                    
+                }
+            }
         }
 
 		private static string CreateFileName(string kitNumber)
