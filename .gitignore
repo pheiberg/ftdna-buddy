@@ -41,3 +41,4 @@ Thumbs.db
 
 #application specific
 __cache
+FtdnaBuddy/*.json
