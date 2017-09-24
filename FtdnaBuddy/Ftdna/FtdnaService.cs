@@ -21,14 +21,20 @@ namespace FtdnaBuddy.Ftdna
             _connector = connector;
         }
 
-        public FtdnaUser Login(string kitNumber, string password)
+        public LoginResult Login(string kitNumber, string password)
         {
             var token = _connector.GetVerificationTokenAsync().Result;
             var loginResult = _connector.LoginAsync(kitNumber, password).Result;
-            var ekitId = _connector.GetEkitIdAsync().Result;
-            _user = new FtdnaUser(kitNumber, ekitId, token); 
+            if(loginResult.ErrorMessage != null)
+            {
+                return loginResult;
+            }
 
-            return _user;
+
+            var ekitId = _connector.GetEkitIdAsync().Result;
+            _user = new FtdnaUser(kitNumber, ekitId, token);
+            loginResult.User = _user;
+            return loginResult;
         }
 
         public async Task<IEnumerable<Match>> ListAllMatches()

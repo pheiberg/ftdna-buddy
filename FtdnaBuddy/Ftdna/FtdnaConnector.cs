@@ -12,6 +12,7 @@ using CsvHelper;
 using FtdnaBuddy.Ftdna.CsvParsing;
 using FtdnaBuddy.Ftdna.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FtdnaBuddy.Ftdna
 {
@@ -74,7 +75,7 @@ namespace FtdnaBuddy.Ftdna
             return token;
         }
 
-        public async Task<string> LoginAsync(string kitNumber, string password)
+        public async Task<LoginResult> LoginAsync(string kitNumber, string password)
         {
             var body = $"{{\"model\": {{\"password\": \"{password}\", \"kitNum\": \"{kitNumber}\", \"rememberMe\": false}}, \"returnUrl\": null}}";
 
@@ -84,11 +85,28 @@ namespace FtdnaBuddy.Ftdna
             request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
             var result = await _client.SendAsync(request);
+			var resultString = await result.Content.ReadAsStringAsync();
+            if (!ValidateJson(resultString))
+                return new LoginResult
+                {
+                    ErrorMessage = "There was an unexpected error logging in"
+                };
 
-            using (var resultStream = await result.Content.ReadAsStreamAsync())
+            var jsonSettings = new JsonSerializerSettings();
+            jsonSettings.Converters.Add(new LoginResultConverter());
+			return JsonConvert.DeserializeObject<LoginResult>(resultString, jsonSettings);
+        }
+
+        private bool ValidateJson(string json)
+        {
+            try
             {
-                var reader = new StreamReader(resultStream);
-                return await reader.ReadToEndAsync();
+				JToken.Parse(json);
+                return true;
+			}
+            catch
+            {
+                return false;
             }
         }
 
@@ -190,15 +208,59 @@ namespace FtdnaBuddy.Ftdna
             return await GetJsonResponse<MatchDetailsResult>(result);
         }
 
-        async Task<T> GetJsonResponse<T>(HttpResponseMessage response)
+        async Task<T> GetJsonResponse<T>(HttpResponseMessage response, params JsonConverter[] converters)
         {
             JsonSerializer serializer = new JsonSerializer();
+            foreach (var converter in converters)
+            {
+                serializer.Converters.Add(converter);
+            }
+
             using (var resultStream = await response.Content.ReadAsStreamAsync())
             using (var streamReader = new StreamReader(resultStream))
             using (var jsonReader = new JsonTextReader(streamReader))
             {
                 return serializer.Deserialize<T>(jsonReader);
             }
+        }
+    }
+
+    public class LoginResultConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            var result = new LoginResult();
+            var jo = JObject.Load(reader);
+            foreach(var property in jo)
+            {
+                switch(property.Key)
+                {
+                    case "lockedOut":
+                        result.IsLockedOut = property.Value.Value<bool>();
+                        break;
+                    case "errorMessage":
+                        result.ErrorMessage = property.Value.Value<string>();
+                        break;
+                    case "failedAccessAttempts":
+                        result.FailedAccessAttempts = property.Value.Value<int>();
+                        break;
+                    case "returnUrl":
+                        result.ReturnUrl = property.Value.Value<string>();
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
         }
     }
 }

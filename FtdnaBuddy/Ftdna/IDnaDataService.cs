@@ -8,7 +8,7 @@ namespace FtdnaBuddy.Ftdna
 {
     public interface IDnaDataService
     {
-        FtdnaUser Login(string kitNumber, string password);
+        LoginResult Login(string kitNumber, string password);
 
         Task<IEnumerable<Match>> ListAllMatches();
 

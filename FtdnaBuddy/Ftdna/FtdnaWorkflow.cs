@@ -31,21 +31,24 @@ namespace FtdnaBuddy.Ftdna
             StoreProfile(profile);
         }
 
-        private FtdnaUser StartSession(string kitNumber, string password)
+        private LoginResult StartSession(string kitNumber, string password)
         {
             _logger.LogInfo($"Logging in as {kitNumber}");
-            FtdnaUser ftdnaUser = _service.Login(kitNumber, password);
+            var loginResult = _service.Login(kitNumber, password);
 
-            if (ftdnaUser != null)
+            if (loginResult.ErrorMessage == null)
             {
                 _logger.LogInfo($"Login successful");
+				return loginResult;
             }
-            else
+
+            _logger.LogError(loginResult.ErrorMessage);
+            if(loginResult.IsLockedOut)
             {
-                _logger.LogError($"Login failed");
-                throw new Exception("Login failed");
+                _logger.LogError("Account has been locked out");
             }
-            return ftdnaUser;
+
+            throw new Exception("Login failed");
         }
 
         private Profile CreateProfile(string kitNumber)

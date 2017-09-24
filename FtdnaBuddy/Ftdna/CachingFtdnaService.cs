@@ -72,10 +72,11 @@ namespace FtdnaBuddy.Ftdna
             return result;
 		}
 
-		public FtdnaUser Login(string kitNumber, string password)
+		public LoginResult Login(string kitNumber, string password)
 		{
-            _user = _service.Login(kitNumber, password);
-			return _user;
+            var result = _service.Login(kitNumber, password);
+            _user = result.User;
+			return result;
 		}
 
 		private void StoreResult<T>(string methodKey, T result, string parameterKeys = null)
