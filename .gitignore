@@ -39,6 +39,9 @@ Thumbs.db
 # dotCover
 *.dotCover
 
+.idea
+
 #application specific
 __cache
 FtdnaBuddy/*.json
+FtdnaBuddy/*.csv
