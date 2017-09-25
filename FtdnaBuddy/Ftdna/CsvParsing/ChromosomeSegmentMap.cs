@@ -3,7 +3,7 @@ using CsvHelper.Configuration;
 
 namespace FtdnaBuddy.Ftdna.CsvParsing
 {
-    public sealed class ChromosomeSegmentMap : CsvClassMap<ChromosomeSegment>
+    public sealed class ChromosomeSegmentMap : ClassMap<ChromosomeSegment>
 	{
 		public ChromosomeSegmentMap()
 		{
