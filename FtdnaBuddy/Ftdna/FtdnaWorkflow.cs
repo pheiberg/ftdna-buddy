@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using Regex = System.Text.RegularExpressions.Regex;
 using System.Threading.Tasks;
+using CsvHelper;
+using CsvHelper.Configuration;
 using FtdnaBuddy.Ftdna.Model;
 using FtdnaBuddy.Ftdna.QueryModel;
 using FtdnaBuddy.Ftdna.Serialization;
@@ -181,23 +183,49 @@ namespace FtdnaBuddy.Ftdna
         private void GenerateCsv(Profile profile)
         {
             GenerateFamilyFinderCsv(profile);
-			_logger.LogInfo("Created Family Finder Matches CSV");
-            
+			_logger.LogInfo("Created Family Finder Matches CSV");   
         }
 
         private void GenerateFamilyFinderCsv(Profile profile)
         {
-            var fileName = $"{profile.KitNumber}_Family_Finder_Matches.csv";
+	        const string header = "Full Name,Match Date,Relationship Range,Suggested Relationship,Shared cM," 
+	                              + "Longest Block,Known Relationship,E - mail,Ancestral,YDNA Haplogroup,mtDNA " 
+	                              + "Haplogroup,ResultID2,Notes,Name";
+	        
+	        var fileName = $"{profile.KitNumber}_Family_Finder_Matches.csv";
             using(var file = File.OpenWrite(fileName))
-            {
-                foreach (var match in profile.Matches)
-                {
-                    
-                }
+	        using(var writer = new StreamWriter(file))
+			using(var csvWriter = new CsvWriter(writer))
+			{
+				writer.WriteLine(header);
+				
+				foreach (var kit in profile.Matches)
+				{
+					WriteKitCsvLine(csvWriter, kit);
+				}
             }
         }
 
-		private static string CreateFileName(string kitNumber)
+	    private static void WriteKitCsvLine(IWriter csvWriter, IKitData kit)
+	    {
+		    csvWriter.WriteField(kit.Name);
+		    csvWriter.WriteField(kit.RbDate.ToString("MM/dd/yyyy"));
+		    csvWriter.WriteField(kit.RelationshipRange);
+		    csvWriter.WriteField(kit.SuggestedRelationship);
+		    csvWriter.WriteField(kit.TotalCM);
+		    csvWriter.WriteField(kit.LongestCentimorgans);
+		    csvWriter.WriteField(kit.Relationship);
+		    csvWriter.WriteField(kit.Email);
+		    csvWriter.WriteField(kit.UserSurnames);
+		    csvWriter.WriteField(kit.YHaplo);
+		    csvWriter.WriteField(kit.MtHaplo);
+		    csvWriter.WriteField(kit.ResultId2);
+		    csvWriter.WriteField(kit.Note);
+		    csvWriter.WriteField(kit.Name);
+		    csvWriter.NextRecord();
+	    }
+
+	    private static string CreateFileName(string kitNumber)
 		{
 			return $"{kitNumber}.json";
 		}

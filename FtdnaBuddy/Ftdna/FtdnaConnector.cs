@@ -145,7 +145,6 @@ namespace FtdnaBuddy.Ftdna
 
         private async Task<MatchResults> ListMatches(string uri)
         {
-            JsonSerializer serializer = new JsonSerializer();
 			var request = new HttpRequestMessage(HttpMethod.Get, uri);
 			request.Headers.Accept.ParseAdd(PageAcceptHeader);
 			request.Headers.Referrer = new Uri(BaseUri + "my/default.aspx");
