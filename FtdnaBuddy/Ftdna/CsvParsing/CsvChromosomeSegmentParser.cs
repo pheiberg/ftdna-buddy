@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CsvHelper;
 using FtdnaBuddy.Ftdna.Model;
 
 namespace FtdnaBuddy.Ftdna.CsvParsing
@@ -29,20 +29,25 @@ namespace FtdnaBuddy.Ftdna.CsvParsing
 
         private ChromosomeSegment ParseLine(string line)
         {
-            string[] parts = line.Split(',');
-            
-            if (parts.Length < 7)
-                return null;
+            int nameEnd = line.IndexOf("\",\"", StringComparison.OrdinalIgnoreCase);
+            string remainder = line.Substring(nameEnd + 3);
+            string name = line.Substring(1, nameEnd - 1);
+            int matchNameEnd = remainder.LastIndexOf("\",", StringComparison.OrdinalIgnoreCase);
+            string matchName = remainder.Substring(0, matchNameEnd);
+            string[] parts = remainder.Substring(matchNameEnd + 2).Split(',');
 
+            if (parts.Length != 5)
+                return null;
+            
             return new ChromosomeSegment
             {
-                Name = parts[0].Trim('\"'),
-                MatchName = string.Join(',', parts.Skip(1).Take(parts.Length - 6)).Trim('\"'),
-                Chromosome = parts[parts.Length - 5],
-                StartLocation = long.Parse(parts[parts.Length - 4]),
-                EndLocation = long.Parse(parts[parts.Length - 3]),
-                Centimorgans = double.Parse(parts[parts.Length - 2]),
-                MatchingSnps = int.Parse(parts[parts.Length - 1])
+                Name = name,
+                MatchName = matchName,
+                Chromosome = parts[0],
+                StartLocation = long.Parse(parts[1]),
+                EndLocation = long.Parse(parts[2]),
+                Centimorgans = double.Parse(parts[3]),
+                MatchingSnps = int.Parse(parts[4])
             };
         }
     }

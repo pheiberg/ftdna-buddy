@@ -114,5 +114,51 @@ namespace UnitTests
             };
             result.First().Should().BeEquivalentTo(expected);
         }
+        
+        [Fact]
+        public void NameContainingCommas_ShouldParseOk()
+        {
+            const string input = "NAME,MATCHNAME,CHROMOSOME,START LOCATION,END LOCATION,CENTIMORGANS,MATCHING SNPS\r\n" 
+                                 + "\"Peter, Heiberg\",\"Robert \"Bob\", Doe\",1,31908360,34303465,2.45,600";
+            var reader = new StringReader(input);
+            var parser = new CsvChromosomeSegmentParser();
+
+            var result = parser.Parse(reader);
+
+            var expected = new ChromosomeSegment
+            {
+                Name = "Peter, Heiberg",
+                MatchName = "Robert \"Bob\", Doe",
+                Chromosome = "1",
+                StartLocation = 31908360,
+                EndLocation = 34303465,
+                Centimorgans = 2.45,
+                MatchingSnps = 600
+            };
+            result.First().Should().BeEquivalentTo(expected);
+        }
+        
+        [Fact]
+        public void NameContainingCommasAndQuotes_ShouldParseOk()
+        {
+            const string input = "NAME,MATCHNAME,CHROMOSOME,START LOCATION,END LOCATION,CENTIMORGANS,MATCHING SNPS\r\n" 
+                                 + "\"Peter \"Peppe\", Heiberg\",\"Robert \"Bob\", Doe\",1,31908360,34303465,2.45,600";
+            var reader = new StringReader(input);
+            var parser = new CsvChromosomeSegmentParser();
+
+            var result = parser.Parse(reader);
+
+            var expected = new ChromosomeSegment
+            {
+                Name = "Peter \"Peppe\", Heiberg",
+                MatchName = "Robert \"Bob\", Doe",
+                Chromosome = "1",
+                StartLocation = 31908360,
+                EndLocation = 34303465,
+                Centimorgans = 2.45,
+                MatchingSnps = 600
+            };
+            result.First().Should().BeEquivalentTo(expected);
+        }
     }
 }
