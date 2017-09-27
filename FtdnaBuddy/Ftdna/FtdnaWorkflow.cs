@@ -14,8 +14,8 @@ namespace FtdnaBuddy.Ftdna
 {
     public class FtdnaWorkflow
     {
-        readonly IDnaDataService _service;
-        readonly ILogger _logger;
+	    private readonly IDnaDataService _service;
+	    private readonly ILogger _logger;
 
         public FtdnaWorkflow(IDnaDataService service, ILogger logger)
         {
@@ -41,7 +41,7 @@ namespace FtdnaBuddy.Ftdna
 
             if (loginResult.ErrorMessage == null)
             {
-                _logger.LogInfo($"Login successful");
+                _logger.LogInfo("Login successful");
 				return loginResult;
             }
 
@@ -91,12 +91,12 @@ namespace FtdnaBuddy.Ftdna
                 matchTask = _service.ListNewMatches(profile.LastUpdated);
             }
 
-            var matches = matchTask.Result;
+            var matches = matchTask.Result.ToArray();
             var kits = matches.Select(m => ModelBuilder.BuildKit(m, DateTime.Now)).ToArray();
             profile.AddMatches(kits);
             profile.LastUpdated = DateTime.Now;
 
-            _logger.LogInfo($"Done fetching {matches.Count()} matches");
+            _logger.LogInfo($"Done fetching {matches.Length} matches");
             return kits;
         }
 
@@ -111,7 +111,7 @@ namespace FtdnaBuddy.Ftdna
                 UpdateSegment(segmentMap, kit);
             }
 
-            _logger.LogInfo($"Done processing segment information");
+            _logger.LogInfo("Done processing segment information");
         }
 
         private void UpdateSegment(ILookup<string, ChromosomeSegment> segmentMap, Kit kit)
