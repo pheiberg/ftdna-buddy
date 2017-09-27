@@ -8,7 +8,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CsvHelper;
 using FtdnaBuddy.Ftdna.CsvParsing;
 using FtdnaBuddy.Ftdna.Model;
 using Newtonsoft.Json;
@@ -164,12 +163,11 @@ namespace FtdnaBuddy.Ftdna
 
             var result = await _client.SendAsync(request);
 
+            var parser = new CsvChromosomeSegmentParser();
             using (var resultStream = await result.Content.ReadAsStreamAsync())
             using (var streamReader = new StreamReader(resultStream))
             {
-                var csvReader = new CsvReader(streamReader);
-                csvReader.Configuration.RegisterClassMap<ChromosomeSegmentMap>();
-                return csvReader.GetRecords<ChromosomeSegment>().ToArray();
+                return parser.Parse(streamReader);
             }
         }
 
