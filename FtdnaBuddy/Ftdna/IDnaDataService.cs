@@ -10,7 +10,7 @@ namespace FtdnaBuddy.Ftdna
     {
         LoginResult Login(string kitNumber, string password);
 
-        Task<IEnumerable<Match>> ListAllMatches();
+        Task<IEnumerable<Match>> ListAllMatches(int pageSize = FtdnaConnector.DefaultPageSize);
 
         Task<IEnumerable<Match>> ListNewMatches(DateTime startDate);
 

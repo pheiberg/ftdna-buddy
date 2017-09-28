@@ -8,36 +8,30 @@ namespace FtdnaBuddy.Ftdna
 {
     public class FtdnaService : IDnaDataService
     {
-        readonly FtdnaConnector _connector;
-        FtdnaUser _user;
-
+	    private readonly IFtdnaConnector _connector;
+	    private readonly IFtdnaAuthenticator _autenticator;
+	    
         public FtdnaService(int requestDelay) : this(new FtdnaConnector(requestDelay))
         {
 
         }
 
-        public FtdnaService(FtdnaConnector connector)
+        public FtdnaService(IFtdnaConnector connector) : this(connector, new FtdnaAuthenticator(connector))
         {
-            _connector = connector;
         }
+	    
+	    public FtdnaService(IFtdnaConnector connector, IFtdnaAuthenticator autenticator)
+	    {
+		    _connector = connector;
+		    _autenticator = autenticator;
+	    }
 
         public LoginResult Login(string kitNumber, string password)
         {
-            var token = _connector.GetVerificationTokenAsync().Result;
-            var loginResult = _connector.LoginAsync(kitNumber, password).Result;
-            if(loginResult.ErrorMessage != null)
-            {
-                return loginResult;
-            }
-
-
-            var ekitId = _connector.GetEkitIdAsync().Result;
-            _user = new FtdnaUser(kitNumber, ekitId, token);
-            loginResult.User = _user;
-            return loginResult;
+	        return _autenticator.Authenticate(kitNumber, password);
         }
 
-        public async Task<IEnumerable<Match>> ListAllMatches()
+        public async Task<IEnumerable<Match>> ListAllMatches(int pageSize = FtdnaConnector.DefaultPageSize)
         {
             RequireLogin();
 
@@ -45,9 +39,9 @@ namespace FtdnaBuddy.Ftdna
             bool done = false;
             for (int page = 1; !done; page++)
             {
-                var matchResult = await _connector.ListAllMatches(page);
+                var matchResult = await _connector.ListAllMatches(page, pageSize);
                 result.AddRange(matchResult.Data);
-                done = matchResult.Count != FtdnaConnector.DefaultPageSize;
+                done = matchResult.Count != pageSize;
             }
             return result;
         }
@@ -70,7 +64,7 @@ namespace FtdnaBuddy.Ftdna
         public async Task<IEnumerable<ChromosomeSegment>> ListChromosomeSegmentsByMatchName()
         {
             RequireLogin();
-            return await _connector.ListChromosomeSegmentsAsync(_user.EncryptedKitId);
+            return await _connector.ListChromosomeSegmentsAsync(_autenticator.User.EncryptedKitId);
         }
 
 		public async Task<IEnumerable<Match>> ListInCommonWith(IKitIdentity match)
@@ -97,7 +91,7 @@ namespace FtdnaBuddy.Ftdna
 
 		private void RequireLogin()
 		{
-			if (_user == null)
+			if (!_autenticator.IsLoggedIn)
 				throw new InvalidOperationException("Must log in before performing this operation");
 		}
 	}

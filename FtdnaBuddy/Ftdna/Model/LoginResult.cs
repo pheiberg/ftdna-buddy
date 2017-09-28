@@ -2,6 +2,16 @@
 {
     public class LoginResult
     {
+        public LoginResult()
+        {
+            
+        }
+        
+        public LoginResult(FtdnaUser user)
+        {
+            User = user;
+        }
+        
         public string ReturnUrl { get; internal set; }
 
         public bool IsLockedOut { get; internal set; }

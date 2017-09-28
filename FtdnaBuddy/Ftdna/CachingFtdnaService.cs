@@ -31,7 +31,7 @@ namespace FtdnaBuddy.Ftdna
             return result;
         }
 
-        public async Task<IEnumerable<Match>> ListAllMatches()
+        public async Task<IEnumerable<Match>> ListAllMatches(int pageSize = FtdnaConnector.DefaultPageSize)
 		{
 			if (TryGetStoredResult("ListAllMatches", out IEnumerable<Match> cached))
 				return cached;
