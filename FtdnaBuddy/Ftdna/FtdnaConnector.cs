@@ -17,22 +17,31 @@ namespace FtdnaBuddy.Ftdna
 {
     public class FtdnaConnector
     {
-        const string BaseUri = "https://www.familytreedna.com/";
-        const string PageAcceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
-        const string SignInPath = "sign-in";
-        readonly CookieContainer _cookies = new CookieContainer();
-        readonly HttpClient _client;
+        private const string BaseUri = "https://www.familytreedna.com/";
+        private const string PageAcceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8";
+        private const string SignInPath = "sign-in";
         public const int DefaultPageSize = 1500;
+        public const int DefaultRequestDelay = 2000;
 
+        private readonly CookieContainer _cookies = new CookieContainer();
+        private readonly HttpClient _client;
+        
         public int RequestDelay { get; }
             
-        public FtdnaConnector(int requestDelay)
+        public FtdnaConnector(int requestDelay = DefaultRequestDelay)
         {
             RequestDelay = requestDelay;
-            _client = CreateClient();
+            var messageHandler = CreateMessageHandler();
+            _client = CreateClient(messageHandler);
+        }
+        
+        public FtdnaConnector(HttpMessageHandler messageHandler, int requestDelay = DefaultRequestDelay)
+        {
+            RequestDelay = requestDelay;
+            _client = CreateClient(messageHandler);
         }
 
-        HttpClient CreateClient(string baseUri = BaseUri)
+        private HttpMessageHandler CreateMessageHandler()
         {
             var handler = new HttpClientHandler
             {
@@ -44,15 +53,17 @@ namespace FtdnaBuddy.Ftdna
             {
                 Filter = request => 
                 {
-					var unthrottledPaths = new[] { "sign-in", "default.aspx" };
-					bool isUnthrottled = unthrottledPaths.Any(request.RequestUri.PathAndQuery.Contains);
-					return !isUnthrottled;
+                    var unthrottledPaths = new[] { "sign-in", "default.aspx" };
+                    bool isUnthrottled = unthrottledPaths.Any(request.RequestUri.PathAndQuery.Contains);
+                    return !isUnthrottled;
                 }    
             };
-            var client = new HttpClient(throttler)
-            {
-                BaseAddress = new Uri(baseUri)
-            };
+            return throttler;
+        }
+
+        private HttpClient CreateClient(HttpMessageHandler messageHandler, string baseUri = BaseUri)
+        {
+            var client = new HttpClient(messageHandler) { BaseAddress = new Uri(baseUri) };
             client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en-US"));
             client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue("en", .8));
             client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
